@@ -1,5 +1,6 @@
 from random import randint
 
+
 DEFAULT_ATTACK = 5
 DEFAULT_DEFENCE = 10
 DEFAULT_STAMINA = 80
@@ -59,6 +60,76 @@ class Healer(Character):
     SPECIAL_BUFF = DEFAULT_DEFENCE + 30
     SPECIAL_SKILL = 'Защита'
 
-warrior = Warrior('Кодослав')
-print(warrior)
-print(warrior.attack())
+
+def choice_char_class(char_name: str) -> Character:
+    """
+    Возвращает объект с выбранным
+    классом персонажа.
+    """
+    # Добавили словарь, в котором соотносится ввод пользователя
+    #  и класс персонажа.
+    game_classes = {'warrior': Warrior, 'mage': Mage, 'healer': Healer}
+    approve_choice = ''
+
+    while approve_choice != 'y':
+        selected_class = input('Введи название персонажа, '
+                               'за которого хочешь играть: Воитель — warrior, '
+                               'Маг — mage, Лекарь — healer: ')
+        try:
+            char_class: Character = game_classes[selected_class](char_name)
+        except KeyError:
+            print('Вы ввели не существующий класс!')
+            approve_choice = ' '
+        else:
+            # Вывели в терминал описание персонажа.
+            print(char_class)
+            approve_choice = input('Нажми (Y), чтобы подтвердить выбор, '
+                                   'или любую другую кнопку, '
+                                   'чтобы выбрать другого персонажа ').lower()
+    return char_class
+
+
+def start_training(character: Character) -> str:
+    """
+    Принимает на вход объект персонажа.
+    Возвращает сообщения о результатах цикла тренировки персонажа.
+    """
+    game_classes = {
+                    'Warrior': 'ты Воитель — великий мастер ближнего боя.',
+                    'Mage': 'ты Маг — превосходный укротитель стихий.',
+                    'Healer': 'ты Лекарь — чародей, способный исцелять раны.',
+                    }
+    # Замените конструкцию условных операторов на словарь.
+    print(f'{character.__class__.__name__}, '
+          f'{game_classes[character.__class__.__name__]}')
+    print('Потренируйся управлять своими навыками.')
+    print('Введи одну из команд: attack — чтобы атаковать противника, '
+          'defence — чтобы блокировать атаку противника или '
+          'special — чтобы использовать свою суперсилу.')
+    print('Если не хочешь тренироваться, введи команду skip.')
+    cmd = ""
+    while cmd != 'skip':
+        cmd = input('Введи команду: ')
+        # Вместо блока условных операторов добавьте условие
+        # принадлежности введённой команды словарю.
+        # В функции print() будет вызываться метод класса,
+        # который соответствует введённой команде.
+        game_move = {'attack': 'attack',
+                     'defence': 'defence',
+                     'special': 'special'}
+        if cmd in set(game_move.keys()):
+            action = getattr(character, cmd)()
+            print(action)
+    return 'Тренировка окончена.'
+
+
+if __name__ == '__main__':
+    print('Приветствую тебя, искатель приключений!')
+    print('Прежде чем начать игру...')
+    char_name: str = input('...назови себя: ')
+    print(f'Здравствуй, {char_name}! '
+          'Сейчас твоя выносливость — 80, атака — 5 и защита — 10.')
+    print('Ты можешь выбрать один из трёх путей силы:')
+    print('Воитель, Маг, Лекарь')
+    char_class: Character = choice_char_class(char_name)
+    print(start_training(char_class))
